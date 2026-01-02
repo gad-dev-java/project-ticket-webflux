@@ -1,0 +1,29 @@
+spring:
+  webflux:
+    base-path: /api/v1
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/booking_service_db
+    username: gad-dev
+    password: 123456789
+    pool:
+      enabled: true
+      initial-size: 5
+      max-size: 15
+      max-life-time: 300000ms
+      max-idle-time: 60000ms
+      max-create-connection-time: 5000ms
+      validation-query: SELECT 1
+      validation-depth: local
+logging:
+  level:
+    root: INFO
+    io:
+      r2dbc:
+        pool: DEBUG
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+        transaction: DEBUG
+server:
+  port: 8081
