@@ -2,32 +2,28 @@ package com.ticketmaster.user.infrastructure.adapters.input.rest.mapper;
 
 import com.ticketmaster.user.application.ports.input.dto.UpsertUserCommand;
 import com.ticketmaster.user.infrastructure.utils.jwt.JwtExtractor;
-import org.mapstruct.Mapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
-@Mapper(componentModel = "spring", uses = JwtExtractor.class)
-public interface JwtUserMapper {
-    default UpsertUserCommand toCommand(Jwt jwt) {
+@Component
+@RequiredArgsConstructor
+public class JwtUserMapper {
+    private final JwtExtractor jwtExtractor;
+
+    public UpsertUserCommand toCommand(Jwt jwt) {
         if (jwt == null) {
             return null;
         }
 
         return UpsertUserCommand.builder()
-                .userId(extractUserId(jwt))
-                .username(extractUsername(jwt))
-                .email(extractEmail(jwt))
-                .firstName(extractFirstName(jwt))
-                .lastName(extractLastName(jwt))
-                .phone(extractPhone(jwt))
+                .userId(jwtExtractor.extractUserId(jwt))
+                .username(jwtExtractor.extractUsername(jwt))
+                .email(jwtExtractor.extractEmail(jwt))
+                .firstName(jwtExtractor.extractFirstName(jwt))
+                .lastName(jwtExtractor.extractLastName(jwt))
+                .phone(jwtExtractor.extractPhone(jwt))
                 .build();
     }
-
-    UUID extractUserId(Jwt jwt);
-    String extractUsername(Jwt jwt);
-    String extractEmail(Jwt jwt);
-    String extractFirstName(Jwt jwt);
-    String extractLastName(Jwt jwt);
-    String extractPhone(Jwt jwt);
 }

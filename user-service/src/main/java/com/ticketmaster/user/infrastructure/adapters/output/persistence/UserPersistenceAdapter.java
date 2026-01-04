@@ -23,9 +23,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     @Override
     public Mono<User> saveUser(User user) {
-        return Mono.just(user)
-                .map(userMapper::toEntity)
-                .flatMap(template::insert)
+        return template.insert(userMapper.toEntity(user))
                 .map(userMapper::toDomain)
                 .doOnNext(userSaved -> log.info("User saved successfully with id: {}", userSaved.getUserId()))
                 .doOnError(error -> log.error("Error while saving user", error));
@@ -33,9 +31,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     @Override
     public Mono<User> updateUser(User user) {
-        return Mono.just(user)
-                .map(userMapper::toEntity)
-                .flatMap(userRepository::save)
+        return userRepository.save(userMapper.toEntity(user))
                 .map(userMapper::toDomain)
                 .doOnSuccess(u -> log.info("User updated: {}", u.getUserId()));
     }

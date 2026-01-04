@@ -32,7 +32,7 @@ public class UserRestAdapter {
 
     @PostMapping("/me")
     public Mono<ResponseEntity<DataResponse<UserDto>>> getMyProfile(@AuthenticationPrincipal Jwt jwt,
-                                                                    ServerWebExchange request) {
+                                                                    ServerWebExchange serverRequest) {
         UpsertUserCommand command = jwtUserMapper.toCommand(jwt);
         return userUseCase.registerUserOrUpdate(command)
                 .map(userDto -> DataResponse.<UserDto>builder()
@@ -43,7 +43,7 @@ public class UserRestAdapter {
                         .build())
                 .map(body -> {
                     URI location = UriComponentsBuilder
-                            .fromUri(request.getRequest().getURI())
+                            .fromUri(serverRequest.getRequest().getURI())
                             .path("/{id}")
                             .buildAndExpand(body.data().userId())
                             .toUri();
