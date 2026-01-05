@@ -1,10 +1,13 @@
 package com.ticketmaster.user.application.service;
 
 import com.ticketmaster.user.application.ports.input.AddressUseCase;
+import com.ticketmaster.user.application.ports.input.UserActivityUseCase;
 import com.ticketmaster.user.application.ports.input.dto.AddressDto;
 import com.ticketmaster.user.application.ports.input.dto.CreateAddressCommand;
+import com.ticketmaster.user.application.ports.input.dto.RegisterLogActivityCommand;
 import com.ticketmaster.user.application.ports.output.AddressPersistencePort;
 import com.ticketmaster.user.application.ports.output.UserPersistencePort;
+import com.ticketmaster.user.domain.enums.ActivityType;
 import com.ticketmaster.user.domain.exception.UserNotFoundException;
 import com.ticketmaster.user.domain.model.Address;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class AddressService implements AddressUseCase {
     private final AddressPersistencePort addressPersistencePort;
     private final UserPersistencePort userPersistencePort;
+    private final UserActivityUseCase userActivityUseCase;
 
     @Override
     public Mono<AddressDto> addAddress(UUID userId, CreateAddressCommand command) {
@@ -37,7 +41,16 @@ public class AddressService implements AddressUseCase {
                             .zipCode(command.zipCode()).
                             createdAt(LocalDateTime.now())
                             .build();
-                    return addressPersistencePort.saveAddress(newAddress);
+                    return addressPersistencePort.saveAddress(newAddress)
+                            .flatMap(savedAddress -> {
+                                var commandLog = RegisterLogActivityCommand.builder()
+                                        .userId(savedAddress.getUserId())
+                                        .activityType(ActivityType.ADDRESS_ADDED)
+                                        .details("Added address in: " + savedAddress.getCity())
+                                        .build();
+                                return userActivityUseCase.logActivity(commandLog)
+                                        .thenReturn(savedAddress);
+                            });
                 })
                 .map(this::toDto)
                 .doOnNext(addressDto -> log.info("AddressDto: {}", addressDto))

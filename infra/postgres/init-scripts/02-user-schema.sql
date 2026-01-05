@@ -32,18 +32,6 @@ CREATE TABLE genres
     name     VARCHAR(50) NOT NULL UNIQUE
 );
 
-INSERT INTO genres (name) VALUES
-                              ('Rock'),
-                              ('Pop'),
-                              ('Hip Hop'),
-                              ('Electronic'),
-                              ('Jazz'),
-                              ('Classical'),
-                              ('Reggae'),
-                              ('Salsa'),
-                              ('Metal'),
-                              ('Country') ON CONFLICT (name) DO NOTHING;
-
 CREATE TABLE user_favorite_genres
 (
     user_id    UUID NOT NULL,
@@ -54,5 +42,43 @@ CREATE TABLE user_favorite_genres
     CONSTRAINT fk_genre_pref FOREIGN KEY (genre_id) REFERENCES genres (genre_id)
 );
 
+CREATE TABLE user_activities
+(
+    activity_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id       UUID        NOT NULL,
+    activity_type VARCHAR(50) NOT NULL,
+    details       VARCHAR(255),
+    created_at    TIMESTAMP        DEFAULT NOW(),
+    CONSTRAINT fk_user_activity FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS payment_methods
+(
+    payment_method_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id           UUID         NOT NULL,
+    token             VARCHAR(255) NOT NULL,
+    brand             VARCHAR(50)  NOT NULL,
+    last_four         VARCHAR(4)   NOT NULL,
+    holder_name       VARCHAR(100) NOT NULL,
+    is_default        BOOLEAN          DEFAULT FALSE,
+    created_at        TIMESTAMP        DEFAULT NOW(),
+    CONSTRAINT fk_user_payment FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
+
 CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_user_activities_user_id ON user_activities (user_id);
+CREATE INDEX idx_payment_user_id ON payment_methods (user_id);
+
+INSERT INTO genres (name)
+VALUES ('Rock'),
+       ('Pop'),
+       ('Hip Hop'),
+       ('Electronic'),
+       ('Jazz'),
+       ('Classical'),
+       ('Reggae'),
+       ('Salsa'),
+       ('Metal'),
+       ('Country')
+ON CONFLICT (name) DO NOTHING;

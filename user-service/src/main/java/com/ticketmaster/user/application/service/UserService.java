@@ -1,9 +1,12 @@
 package com.ticketmaster.user.application.service;
 
+import com.ticketmaster.user.application.ports.input.UserActivityUseCase;
 import com.ticketmaster.user.application.ports.input.UserUseCase;
+import com.ticketmaster.user.application.ports.input.dto.RegisterLogActivityCommand;
 import com.ticketmaster.user.application.ports.input.dto.UpsertUserCommand;
 import com.ticketmaster.user.application.ports.input.dto.UserDto;
 import com.ticketmaster.user.application.ports.output.UserPersistencePort;
+import com.ticketmaster.user.domain.enums.ActivityType;
 import com.ticketmaster.user.domain.enums.UserStatus;
 import com.ticketmaster.user.domain.exception.UserNotFoundException;
 import com.ticketmaster.user.domain.model.User;
@@ -23,23 +26,40 @@ import java.util.UUID;
 public class UserService implements UserUseCase {
     private final UserPersistencePort userPersistencePort;
     private final TransactionalOperator transactionalOperator;
+    private final UserActivityUseCase userActivityUseCase;
 
     @Override
     public Mono<UserDto> registerUserOrUpdate(UpsertUserCommand command) {
         return userPersistencePort.findUserById(command.userId())
                 .flatMap(existingUser -> {
-                    boolean dataChanged = isDataChanged(command, existingUser);
-
-                    if (dataChanged) {
+                    if (isDataChanged(command, existingUser)) {
                         User updatedUser = updateUserFields(existingUser, command);
-                        return userPersistencePort.updateUser(updatedUser);
+                        return userPersistencePort.updateUser(updatedUser)
+                                .flatMap(savedUser -> {
+                                    var commandLog = RegisterLogActivityCommand.builder()
+                                            .userId(savedUser.getUserId())
+                                            .activityType(ActivityType.PROFILE_UPDATED)
+                                            .details("Updated profile data")
+                                            .build();
+                                    return userActivityUseCase.logActivity(commandLog)
+                                            .thenReturn(savedUser);
+                                });
                     }
                     return Mono.just(existingUser);
                 })
                 .switchIfEmpty(
                         Mono.defer(() -> {
                             User newUser = createNewUser(command);
-                            return userPersistencePort.saveUser(newUser);
+                            return userPersistencePort.saveUser(newUser)
+                                    .flatMap(savedUser -> {
+                                        var commandLog = RegisterLogActivityCommand.builder()
+                                                .userId(savedUser.getUserId())
+                                                .activityType(ActivityType.USER_REGISTERED)
+                                                .details("Initial registration via Keycloak")
+                                                .build();
+                                        return userActivityUseCase.logActivity(commandLog)
+                                                .thenReturn(newUser);
+                                    });
                         })
                 )
                 .map(this::mapToDto)
