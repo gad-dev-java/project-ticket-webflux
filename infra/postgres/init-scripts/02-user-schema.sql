@@ -26,5 +26,33 @@ CREATE TABLE addresses
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
+CREATE TABLE genres
+(
+    genre_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name     VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO genres (name) VALUES
+                              ('Rock'),
+                              ('Pop'),
+                              ('Hip Hop'),
+                              ('Electronic'),
+                              ('Jazz'),
+                              ('Classical'),
+                              ('Reggae'),
+                              ('Salsa'),
+                              ('Metal'),
+                              ('Country') ON CONFLICT (name) DO NOTHING;
+
+CREATE TABLE user_favorite_genres
+(
+    user_id    UUID NOT NULL,
+    genre_id   UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, genre_id),
+    CONSTRAINT fk_user_pref FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT fk_genre_pref FOREIGN KEY (genre_id) REFERENCES genres (genre_id)
+);
+
 CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_username ON users (username);

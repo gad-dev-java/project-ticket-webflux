@@ -2,7 +2,7 @@ spring:
   webflux:
     base-path: /api/v1
   r2dbc:
-    url: r2dbc:postgresql://localhost:5435/user_service_db
+    url: r2dbc:postgresql://localhost:5432/user_service_db
     username: gad-dev
     password: 123456789
     pool:

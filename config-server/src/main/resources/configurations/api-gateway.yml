@@ -13,7 +13,7 @@ spring:
             - id: users-service
               uri: lb://user-service
               predicates:
-                - Path=/api/v1/users/**,/api/v1/addresses/**
+                - Path=/api/v1/users/**,/api/v1/addresses/**,/api/v1/genres/**
               filters:
                 - TokenRelay
   security:
