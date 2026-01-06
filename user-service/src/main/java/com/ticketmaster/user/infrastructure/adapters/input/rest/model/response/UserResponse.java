@@ -1,12 +1,9 @@
-package com.ticketmaster.user.application.ports.input.dto;
-
-import lombok.Builder;
+package com.ticketmaster.user.infrastructure.adapters.input.rest.model.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Builder
-public record UserDto(
+public record UserResponse(
         UUID userId,
         String username,
         String email,

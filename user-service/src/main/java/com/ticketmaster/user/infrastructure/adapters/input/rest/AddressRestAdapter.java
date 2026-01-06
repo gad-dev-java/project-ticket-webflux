@@ -27,7 +27,7 @@ public class AddressRestAdapter {
     private final AddressRestMapper addressRestMapper;
 
     @PostMapping("/{userId}")
-    public Mono<ResponseEntity<DataResponse<?>>> createAddress(@PathVariable String userId,
+    public Mono<ResponseEntity<DataResponse<AddressResponse>>> createAddress(@PathVariable String userId,
                                                                 @RequestBody CreateAddressRequest request,
                                                                 ServerWebExchange serverRequest) {
         CreateAddressCommand command = addressRestMapper.toCommand(request);
@@ -53,7 +53,7 @@ public class AddressRestAdapter {
     }
 
     @GetMapping("/{userId}/address")
-    public Mono<ResponseEntity<DataResponse<?>>> getUserAddress(@PathVariable String userId){
+    public Mono<ResponseEntity<DataResponse<List<AddressResponse>>>> getUserAddress(@PathVariable String userId){
         return addressUseCase.getUserAddress(UUID.fromString(userId))
                 .map(addressRestMapper::toResponse)
                 .collectList()

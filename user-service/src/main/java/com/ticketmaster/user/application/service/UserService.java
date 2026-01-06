@@ -1,15 +1,15 @@
 package com.ticketmaster.user.application.service;
 
-import com.ticketmaster.user.application.ports.input.UserActivityUseCase;
 import com.ticketmaster.user.application.ports.input.UserUseCase;
-import com.ticketmaster.user.application.ports.input.dto.RegisterLogActivityCommand;
 import com.ticketmaster.user.application.ports.input.dto.UpsertUserCommand;
 import com.ticketmaster.user.application.ports.input.dto.UserDto;
+import com.ticketmaster.user.application.ports.output.UserActivityPersistencePort;
 import com.ticketmaster.user.application.ports.output.UserPersistencePort;
 import com.ticketmaster.user.domain.enums.ActivityType;
 import com.ticketmaster.user.domain.enums.UserStatus;
 import com.ticketmaster.user.domain.exception.UserNotFoundException;
 import com.ticketmaster.user.domain.model.User;
+import com.ticketmaster.user.domain.model.UserActivity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import java.util.UUID;
 public class UserService implements UserUseCase {
     private final UserPersistencePort userPersistencePort;
     private final TransactionalOperator transactionalOperator;
-    private final UserActivityUseCase userActivityUseCase;
+    private final UserActivityPersistencePort userActivityPersistencePort;
 
     @Override
     public Mono<UserDto> registerUserOrUpdate(UpsertUserCommand command) {
@@ -36,12 +36,12 @@ public class UserService implements UserUseCase {
                         User updatedUser = updateUserFields(existingUser, command);
                         return userPersistencePort.updateUser(updatedUser)
                                 .flatMap(savedUser -> {
-                                    var commandLog = RegisterLogActivityCommand.builder()
+                                    var userActivity = UserActivity.builder()
                                             .userId(savedUser.getUserId())
                                             .activityType(ActivityType.PROFILE_UPDATED)
                                             .details("Updated profile data")
                                             .build();
-                                    return userActivityUseCase.logActivity(commandLog)
+                                    return userActivityPersistencePort.saveActivity(userActivity)
                                             .thenReturn(savedUser);
                                 });
                     }
@@ -52,12 +52,12 @@ public class UserService implements UserUseCase {
                             User newUser = createNewUser(command);
                             return userPersistencePort.saveUser(newUser)
                                     .flatMap(savedUser -> {
-                                        var commandLog = RegisterLogActivityCommand.builder()
+                                        var userActivity = UserActivity.builder()
                                                 .userId(savedUser.getUserId())
                                                 .activityType(ActivityType.USER_REGISTERED)
                                                 .details("Initial registration via Keycloak")
                                                 .build();
-                                        return userActivityUseCase.logActivity(commandLog)
+                                        return userActivityPersistencePort.saveActivity(userActivity)
                                                 .thenReturn(newUser);
                                     });
                         })

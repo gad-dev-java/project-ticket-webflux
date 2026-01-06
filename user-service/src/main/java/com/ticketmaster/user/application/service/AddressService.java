@@ -1,15 +1,15 @@
 package com.ticketmaster.user.application.service;
 
 import com.ticketmaster.user.application.ports.input.AddressUseCase;
-import com.ticketmaster.user.application.ports.input.UserActivityUseCase;
 import com.ticketmaster.user.application.ports.input.dto.AddressDto;
 import com.ticketmaster.user.application.ports.input.dto.CreateAddressCommand;
-import com.ticketmaster.user.application.ports.input.dto.RegisterLogActivityCommand;
 import com.ticketmaster.user.application.ports.output.AddressPersistencePort;
+import com.ticketmaster.user.application.ports.output.UserActivityPersistencePort;
 import com.ticketmaster.user.application.ports.output.UserPersistencePort;
 import com.ticketmaster.user.domain.enums.ActivityType;
 import com.ticketmaster.user.domain.exception.UserNotFoundException;
 import com.ticketmaster.user.domain.model.Address;
+import com.ticketmaster.user.domain.model.UserActivity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class AddressService implements AddressUseCase {
     private final AddressPersistencePort addressPersistencePort;
     private final UserPersistencePort userPersistencePort;
-    private final UserActivityUseCase userActivityUseCase;
+    private final UserActivityPersistencePort userActivityPersistencePort;
 
     @Override
     public Mono<AddressDto> addAddress(UUID userId, CreateAddressCommand command) {
@@ -43,12 +43,12 @@ public class AddressService implements AddressUseCase {
                             .build();
                     return addressPersistencePort.saveAddress(newAddress)
                             .flatMap(savedAddress -> {
-                                var commandLog = RegisterLogActivityCommand.builder()
+                                var userActivity = UserActivity.builder()
                                         .userId(savedAddress.getUserId())
                                         .activityType(ActivityType.ADDRESS_ADDED)
                                         .details("Added address in: " + savedAddress.getCity())
                                         .build();
-                                return userActivityUseCase.logActivity(commandLog)
+                                return userActivityPersistencePort.saveActivity(userActivity)
                                         .thenReturn(savedAddress);
                             });
                 })

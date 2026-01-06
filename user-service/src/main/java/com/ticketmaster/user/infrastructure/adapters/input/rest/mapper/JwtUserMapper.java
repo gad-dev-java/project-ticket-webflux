@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @RequiredArgsConstructor
 public class JwtUserMapper {
@@ -16,7 +15,6 @@ public class JwtUserMapper {
         if (jwt == null) {
             return null;
         }
-
         return UpsertUserCommand.builder()
                 .userId(jwtExtractor.extractUserId(jwt))
                 .username(jwtExtractor.extractUsername(jwt))
