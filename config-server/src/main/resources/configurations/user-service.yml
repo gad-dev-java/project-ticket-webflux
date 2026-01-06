@@ -19,6 +19,23 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/ticketing-system-realm
+  kafka:
+    bootstrap-servers: localhost:9092
+    #producer:
+      #key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      #value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #acks: all
+      #retries: 3
+      #properties:
+        #spring.json.add.type.headers: false
+        #max.in.flight.requests.per.connection: 5
+        #enable.idempotence: true
+
+app:
+  kafka:
+    topics:
+      user-created: user.created.v1
+
 logging:
   level:
     root: INFO

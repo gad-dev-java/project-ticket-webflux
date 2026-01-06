@@ -7,6 +7,7 @@ import com.ticketmaster.user.infrastructure.adapters.input.rest.mapper.UserRestM
 import com.ticketmaster.user.infrastructure.adapters.input.rest.model.response.DataResponse;
 import com.ticketmaster.user.infrastructure.adapters.input.rest.model.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -33,10 +35,12 @@ public class UserRestAdapter {
                                                                          ServerWebExchange serverRequest) {
         UpsertUserCommand command = jwtUserMapper.toCommand(jwt);
         return userUseCase.registerUserOrUpdate(command)
+                .doOnNext(userDto -> log.info("Usr Dto: {}", userDto))
                 .map(userRestMapper::toResponse)
+                .doOnNext(userResponse -> log.info("User Response: {}", userResponse))
                 .map(userResponse -> {
                     var bodyResponse = DataResponse.<UserResponse>builder()
-                            .status(HttpStatus.OK.value())
+                            .status(HttpStatus.CREATED.value())
                             .message("User saved successfully")
                             .data(userResponse)
                             .timestamp(LocalDateTime.now())

@@ -81,6 +81,8 @@ services:
       CLUSTER_ID: "Mk3OEYBSD34fcwNTJENDM2Qk"
     volumes:
       - kafka-data:/var/lib/kafka/data
+    networks:
+      - tickets-network
 
 networks:
   tickets-network:
