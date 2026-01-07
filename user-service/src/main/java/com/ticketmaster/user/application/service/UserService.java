@@ -76,7 +76,7 @@ public class UserService implements UserUseCase {
                             .lastName(userSaved.getLastName())
                             .occurredAt(userSaved.getCreatedAt())
                             .build();
-                    return eventPublisherPort.publishUserCreated(userCreatedEvent)
+                    return eventPublisherPort.publish(userCreatedEvent)
                             .thenReturn(userSaved)
                             .doOnNext(user ->  log.info("User saved 3 : {}", user))
                             .onErrorResume(error -> {

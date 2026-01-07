@@ -1,5 +1,7 @@
 package com.ticketmaster.user.infrastructure.config;
 
+import com.ticketmaster.user.domain.event.DomainEvent;
+import com.ticketmaster.user.domain.event.UserCreatedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,5 +41,14 @@ public class KafkaConfig {
     @Bean
     public KafkaSender<String, Object> kafkaSender(SenderOptions<String, Object> senderOptions) {
         return KafkaSender.create(senderOptions);
+    }
+
+    @Bean
+    public Map<Class<? extends DomainEvent>, String> topicMap(
+            @Value("${app.kafka.topics.user-created}") String userCreatedTopic
+    ) {
+        return Map.of(
+                UserCreatedEvent.class, userCreatedTopic
+        );
     }
 }

@@ -12,5 +12,9 @@ public record UserCreatedEvent(
         String firstName,
         String lastName,
         LocalDateTime occurredAt
-) {
+) implements DomainEvent {
+    @Override
+    public String key() {
+        return userId.toString();
+    }
 }
