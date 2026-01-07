@@ -14,6 +14,18 @@ spring:
       max-create-connection-time: 5000ms
       validation-query: SELECT 1
       validation-depth: local
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}-group
+    bootstrap-servers: localhost:9092
+  mail:
+    host: localhost
+    port: 1025
+app:
+  kafka:
+    topics:
+      user-created: user.created.v1
+
 logging:
   level:
     root: INFO

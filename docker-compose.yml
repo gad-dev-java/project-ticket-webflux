@@ -84,6 +84,15 @@ services:
     networks:
       - tickets-network
 
+  maildev:
+    image: maildev/maildev
+    container_name: ticket-maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    networks:
+      - tickets-network
+
 networks:
   tickets-network:
     driver: bridge

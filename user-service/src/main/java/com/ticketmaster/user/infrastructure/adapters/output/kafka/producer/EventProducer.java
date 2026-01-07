@@ -1,4 +1,4 @@
-package com.ticketmaster.user.infrastructure.adapters.output.event.producer;
+package com.ticketmaster.user.infrastructure.adapters.output.kafka.producer;
 
 import com.ticketmaster.user.application.ports.output.EventPublisherPort;
 import com.ticketmaster.user.domain.event.UserCreatedEvent;
