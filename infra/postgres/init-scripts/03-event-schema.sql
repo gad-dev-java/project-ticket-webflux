@@ -2,14 +2,14 @@
 
 CREATE TABLE event_categories
 (
-    category_id   UUID PRIMARY KEY,
+    category_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category_name VARCHAR(100) UNIQUE NOT NULL,
     description   TEXT
 );
 
 CREATE TABLE events
 (
-    event_id    UUID PRIMARY KEY,
+    event_id    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        VARCHAR(255) NOT NULL,
     description TEXT,
     category_id UUID REFERENCES event_categories (category_id),
@@ -26,7 +26,7 @@ CREATE TABLE events
 
 CREATE TABLE ticket_types
 (
-    ticket_type_id     UUID PRIMARY KEY,
+    ticket_type_id     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id           UUID REFERENCES events (event_id) ON DELETE CASCADE,
     type_name          VARCHAR(100)   NOT NULL,
     price              DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
@@ -36,3 +36,6 @@ CREATE TABLE ticket_types
 
     CONSTRAINT chk_ticket_available CHECK (available_quantity <= total_quantity)
 );
+
+INSERT INTO event_categories (category_name, description) VALUES ('Conciertos', 'Música en vivo'),
+                                                                 ('Teatro', 'Obras y dramas');

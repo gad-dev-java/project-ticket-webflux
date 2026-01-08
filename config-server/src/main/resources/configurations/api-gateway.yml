@@ -16,6 +16,12 @@ spring:
                 - Path=/api/v1/users/**,/api/v1/addresses/**,/api/v1/genres/**,/api/v1/activities/**,/api/v1/payment-methods/**
               filters:
                 - TokenRelay
+            - id: events-service
+              uri: lb://event-service
+              predicates:
+                - Path=/api/v1/events/**
+              filters:
+                - TokenRelay
   security:
     oauth2:
       resourceserver:

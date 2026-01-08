@@ -3,10 +3,12 @@ package com.ticketmaster.user.infrastructure.adapters.output.persistence.reposit
 import com.ticketmaster.user.infrastructure.adapters.output.persistence.entities.GenreEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 
+@Repository
 public interface GenreRepository extends R2dbcRepository<GenreEntity, UUID> {
 
     @Query("""

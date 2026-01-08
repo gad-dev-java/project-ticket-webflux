@@ -48,7 +48,7 @@ public class UserRestAdapter {
                     URI location = UriComponentsBuilder
                             .fromUri(serverRequest.getRequest().getURI())
                             .path("/{id}")
-                            .buildAndExpand(bodyResponse.data().userId())
+                            .buildAndExpand(userResponse.userId())
                             .toUri();
                     return ResponseEntity.created(location).body(bodyResponse);
                 });
