@@ -7,7 +7,10 @@ import com.ticketmaster.event.infrastructure.adapters.output.persistence.reposit
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -22,6 +25,18 @@ public class EventPersistenceAdapter implements EventPersistencePort {
         return eventRepository.save(eventMapper.toEntity(event))
                 .map(eventMapper::toDomain)
                 .doOnNext(savedEvent -> log.info("Saved event: {}", savedEvent));
+    }
+
+    @Override
+    public Mono<Event> findEventById(UUID eventId) {
+        return eventRepository.findById(eventId)
+                .map(eventMapper::toDomain);
+    }
+
+    @Override
+    public Flux<Event> findAll() {
+        return eventRepository.findAll()
+                .map(eventMapper::toDomain);
     }
 
 }

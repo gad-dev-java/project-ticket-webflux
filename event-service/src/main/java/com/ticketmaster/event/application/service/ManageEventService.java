@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventService implements ManageEventUseCase {
+public class ManageEventService implements ManageEventUseCase {
     private final EventPersistencePort eventPersistencePort;
     private final TicketTypePersistencePort ticketTypePersistencePort;
 
